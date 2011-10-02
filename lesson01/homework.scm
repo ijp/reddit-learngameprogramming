@@ -1,0 +1,76 @@
+(use-modules ((sdl sdl) #:renamer (symbol-prefix-proc 'SDL:)))
+
+(define-syntax-rule (+= x s)
+  (set! x (+ x s)))
+
+(define-syntax-rule (-= x s)
+  (set! x (- x s)))
+
+(define (draw-surface dest src x y)
+  (let* ((w (SDL:surface:w src))
+         (h (SDL:surface:h src))
+         (src-rect (SDL:make-rect 0 0 w h))
+         (dest-rect (SDL:make-rect x y w h)))
+    (SDL:blit-surface src src-rect dest dest-rect)))
+
+(define window #f)
+(define icon #f)
+(define icon-rect #f)
+(define bg-color #f)
+(define speed 3)
+(define x-speed 0)
+(define y-speed 0)
+(define player-x 0)
+(define player-y 0)
+
+(define (setup)
+  (SDL:init '(SDL_INIT_VIDEO))
+  (set! window (SDL:set-video-mode 800 600 16 '(SDL_HWSURFACE SDL_DOUBLEBUF)))
+  (set! bg-color (SDL:map-rgb (SDL:surface-get-format window) 0 0 0))
+  (catch #t
+    (lambda ()
+      (set! icon (SDL:load-image "/usr/share/pixmaps/MegaMek-icon.png")))
+    (lambda _
+      (display "Couldn't load player icon")
+      (exit -1))))
+
+
+(define (handle e)
+  (case (SDL:event:type e)
+    ((SDL_KEYDOWN)
+     (case (SDL:event:key:keysym:sym e)
+       ((SDLK_LEFT) (-= x-speed speed))
+       ((SDLK_RIGHT) (+= x-speed speed))
+       ((SDLK_UP) (-= y-speed speed))
+       ((SDLK_DOWN) (+= y-speed speed))))
+    ((SDL_KEYUP)
+     (case (SDL:event:key:keysym:sym e)
+       ((SDLK_LEFT) (+= x-speed speed))
+       ((SDLK_RIGHT) (-= x-speed speed))
+       ((SDLK_UP) (+= y-speed speed))
+       ((SDLK_DOWN) (-= y-speed speed))))
+    ((SDL_QUIT)
+     (SDL:quit)
+     (exit 0))))
+
+(define (update!)
+  (+= player-x x-speed)
+  (+= player-y y-speed))
+
+(define (render)
+  (SDL:fill-rect window #f bg-color)
+  (draw-surface window icon player-x player-y))
+
+(define (main)
+  (setup)
+  (let loop ()
+    (let ((e (SDL:make-event)))
+      (while (SDL:poll-event e)
+        (handle e)))
+    (update!)
+    (render)
+    (SDL:flip)
+    (loop)))
+
+
+(main)
