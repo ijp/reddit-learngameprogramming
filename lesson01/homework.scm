@@ -39,10 +39,12 @@
 (define y-speed 0)
 (define player-x 0)
 (define player-y 0)
+(define x-max 800)
+(define y-max 600)
 
 (define (setup)
   (SDL:init '(SDL_INIT_VIDEO))
-  (set! window (SDL:set-video-mode 800 600 16 '(SDL_HWSURFACE SDL_DOUBLEBUF)))
+  (set! window (SDL:set-video-mode x-max y-max 16 '(SDL_HWSURFACE SDL_DOUBLEBUF)))
   (set! bg-color (SDL:map-rgb (SDL:surface-get-format window) 0 0 0))
   (catch #t
     (lambda ()
@@ -71,8 +73,12 @@
      (exit 0))))
 
 (define (update!)
-  (+= player-x x-speed)
-  (+= player-y y-speed))
+  (let ((new-x (+ player-x x-speed))
+        (new-y (+ player-y y-speed)))
+    (when (<= 0 new-x (+ (SDL:surface:w icon) new-x) x-max)
+      (set! player-x new-x))
+    (when (<= 0 new-y (+ (SDL:surface:h icon) new-y) y-max)
+      (set! player-y new-y))))
 
 (define (render)
   (SDL:fill-rect window #f bg-color)
