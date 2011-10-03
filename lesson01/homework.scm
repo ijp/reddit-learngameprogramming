@@ -32,7 +32,6 @@
 (define frame-rate 30)
 (define window #f)
 (define icon #f)
-(define icon-rect #f)
 (define bg-color #f)
 (define speed 3)
 (define x-speed 0)
