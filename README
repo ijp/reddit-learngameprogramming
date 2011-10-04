@@ -7,6 +7,13 @@ written to be portable.
 This code, like guile-SDL, is published under the terms of the GNU
 General Public License, version 3 or later. See COPYING for detail.
 
+To obtain a copy of guile 2, please visit
+http://www.gnu.org/software/guile/ as it may not have been packaged
+for your linux distribution yet.
+I also recommend you use the copy of guile-sdl from
+http://github.com/downloads/ijp/reddit-learngameprogramming/guile-sdl-bt.tar.gz
+as there hasn't been a release since 2009.
+
 Thanks to openclipart.org for the image "monster_01.png" which is
 released under the CC0 Public Domain Dedication. See
 http://www.openclipart.org/about and
