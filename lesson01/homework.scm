@@ -16,6 +16,14 @@
 (use-modules ((sdl sdl) #:renamer (symbol-prefix-proc 'SDL:))
              (rnrs control))
 
+(define-syntax define-syntax-rule
+  (syntax-rules ()
+    ((define-syntax-rule (template-name . template-args) replacement)
+     (define-syntax template-name
+       (syntax-rules ()
+         ((template-name . template-args)
+          replacement))))))
+
 (define-syntax-rule (+= x s)
   (set! x (+ x s)))
 
