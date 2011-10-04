@@ -1,3 +1,5 @@
+#!/usr/bin/env guile
+!#
 ;; Copyright (C) 2011 Ian Price <ianprice90@googlemail.com>
 
 ;; This program is free software; you can redistribute it and/or
