@@ -102,7 +102,7 @@
   (set! bg-color (SDL:map-rgb (SDL:surface-get-format window) 0 0 0))
   (catch #t
     (lambda ()
-      (set! icon (SDL:load-image "/usr/share/pixmaps/MegaMek-icon.png")))
+      (set! icon (SDL:load-image "monster_01.png")))
     (lambda _
       (display "Couldn't load player icon")
       (exit -1))))

@@ -3,3 +3,8 @@ username 'shotintheface'.
 
 Solutions are written in Guile Scheme 2 using guile-SDL and are not
 written to be portable.
+
+Thanks to openclipart.org for the image "monster_01.png" which is
+released under the CC0 Public Domain Dedication. See
+http://www.openclipart.org/about and
+http://creativecommons.org/publicdomain/zero/1.0/ for details.
