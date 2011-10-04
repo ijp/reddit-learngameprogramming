@@ -88,7 +88,7 @@
 (define window #f)
 (define icon #f)
 (define bg-color #f)
-(define speed 3)
+(define speed 15)
 (define x-speed 0)
 (define y-speed 0)
 (define player-x 0)
