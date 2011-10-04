@@ -100,12 +100,12 @@
   (SDL:init '(SDL_INIT_VIDEO))
   (set! window (SDL:set-video-mode x-max y-max 16 '(SDL_HWSURFACE SDL_DOUBLEBUF)))
   (set! bg-color (SDL:map-rgb (SDL:surface-get-format window) 0 0 0))
-  (catch #t
-    (lambda ()
-      (set! icon (SDL:load-image "monster_01.png")))
-    (lambda _
-      (display "Couldn't load player icon")
-      (exit -1))))
+  (let ((image (SDL:load-image "monster_01.png")))
+    (if image
+        (set! icon image)
+        (begin
+          (display "Error: Couldn't load player icon\n")
+          (exit -1)))))
 
 
 (define (handle e)
