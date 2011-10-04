@@ -7,12 +7,67 @@
 (define-syntax-rule (-= x s)
   (set! x (- x s)))
 
-(define (draw-surface dest src x y)
-  (let* ((w (SDL:surface:w src))
-         (h (SDL:surface:h src))
-         (src-rect (SDL:make-rect 0 0 w h))
-         (dest-rect (SDL:make-rect x y w h)))
-    (SDL:blit-surface src src-rect dest dest-rect)))
+(define (draw-surface/wrapping dest src x y)
+  (let* ((dw (SDL:surface:w dest))
+         (dh (SDL:surface:h dest))
+         (sw (SDL:surface:w src))
+         (sh (SDL:surface:h src))
+         (h (+ sh y))
+         (w (+ sw x)))
+    (cond ((and (> h dh) (> w dw))
+           ;; if it is too tall and too wide for the current (x,y)
+           ;; coordinates, then wrap around all four corners
+           (let* ((h2 (- h dh))
+                  (h1 (- sh h2))
+                  (w2 (- w dw))
+                  (w1 (- sw w2))
+                  ;; bottom-right rectangles
+                  (src-rect1 (SDL:make-rect 0 0 w1 h1))
+                  (dest-rect1 (SDL:make-rect x y w1 h1))
+                  ;; top-left rectangles
+                  (src-rect2 (SDL:make-rect w1 h1 w2 h2))
+                  (dest-rect2 (SDL:make-rect 0 0 w2 h2))
+                  ;; top-right rectangles
+                  (src-rect3 (SDL:make-rect w1 0 w2 h1))
+                  (dest-rect3 (SDL:make-rect 0 y w2 h1))
+                  ;; bottom-left rectangles
+                  (src-rect4 (SDL:make-rect 0 h1 w1 h2))
+                  (dest-rect4 (SDL:make-rect x 0 w1 h2)))
+             (SDL:blit-surface src src-rect1 dest dest-rect1)
+             (SDL:blit-surface src src-rect2 dest dest-rect2)
+             (SDL:blit-surface src src-rect3 dest dest-rect3)
+             (SDL:blit-surface src src-rect4 dest dest-rect4)))
+          ((> h dh)
+           ;; if it is too tall for the current y coordinate, then
+           ;; only wrap around the bottom
+           (let* ((h2 (- h dh))
+                  (h1 (- sh h2))
+                  ;; bottom rectangles
+                  (src-rect1 (SDL:make-rect 0 0 sw h1))
+                  (dest-rect1 (SDL:make-rect x y sw h1))
+                  ;; top rectangles
+                  (src-rect2 (SDL:make-rect 0 h1 sw h2))
+                  (dest-rect2 (SDL:make-rect x 0 sw h2)))
+             (SDL:blit-surface src src-rect1 dest dest-rect1)
+             (SDL:blit-surface src src-rect2 dest dest-rect2)))
+          ((> w dw)
+           ;; if it is too wide for the current x coordinate, then
+           ;; wrap around the side
+           (let* ((w2 (- w dw))
+                  (w1 (- sw w2))
+                  ;; right hand side rectangles
+                  (src-rect1 (SDL:make-rect 0 0 w1 sh))
+                  (dest-rect1 (SDL:make-rect x y w1 sh))
+                  ;; left hand side rectangles
+                  (src-rect2 (SDL:make-rect w1 0 w2 sh))
+                  (dest-rect2 (SDL:make-rect 0 y w2 sh)))
+             (SDL:blit-surface src src-rect1 dest dest-rect1)
+             (SDL:blit-surface src src-rect2 dest dest-rect2)))
+          (else
+           ;; otherwise just one whole rectangle
+           (let ((src-rect (SDL:make-rect 0 0 w h))
+                 (dest-rect (SDL:make-rect x y w h)))
+             (SDL:blit-surface src src-rect dest dest-rect))))))
 
 (define (loop millisecs thunk)
   (define usecs (* millisecs 1000))
@@ -72,16 +127,14 @@
      (exit 0))))
 
 (define (update!)
-  (let ((new-x (+ player-x x-speed))
-        (new-y (+ player-y y-speed)))
-    (when (<= 0 new-x (+ (SDL:surface:w icon) new-x) x-max)
-      (set! player-x new-x))
-    (when (<= 0 new-y (+ (SDL:surface:h icon) new-y) y-max)
-      (set! player-y new-y))))
+  (let ((new-x (modulo (+ player-x x-speed) x-max))
+        (new-y (modulo (+ player-y y-speed) y-max)))
+    (set! player-x new-x)
+    (set! player-y new-y)))
 
 (define (render)
   (SDL:fill-rect window #f bg-color)
-  (draw-surface window icon player-x player-y))
+  (draw-surface/wrapping window icon player-x player-y))
 
 (define (main)
   (setup)
